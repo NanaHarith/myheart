@@ -252,6 +252,7 @@ def is_speech(audio_data):
             except Exception as frame_error:
                 logging.debug(f"Error processing specific frame: {str(frame_error)}")
                 logging.debug(f"Frame data length: {len(frame)}, Frame data type: {type(frame)}")
+                logging.debug(f"Frame data (first 10 bytes): {frame[:10]}")
                 # Continue with next frame instead of failing completely
                 pass
 
