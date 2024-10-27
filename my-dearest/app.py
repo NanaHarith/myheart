@@ -1,10 +1,12 @@
 import os
 import io
 import asyncio
+import queue
+import threading
 import aiohttp
 import logging
 from flask import Flask, render_template, send_from_directory, request, send_file, jsonify
-from flask_socketio import SocketIO, emit
+from flask_socketio import SocketIO, emit, Namespace
 from openai import AsyncOpenAI
 import webrtcvad
 import wave
