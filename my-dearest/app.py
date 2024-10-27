@@ -43,7 +43,7 @@ client = AsyncOpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 conversation_history = []
 conversation_active = False
-vad = webrtcvad.Vad(3)  # Aggressiveness mode (0-3)
+vad = webrtcvad.Vad(2)  # Adjusted aggressiveness mode (0-3)
 
 USE_STREAMING_TTS = True
 
@@ -229,39 +229,47 @@ def is_speech(audio_data):
         frame_size = int(sample_rate * (frame_duration / 1000.0))
         logging.debug(f"Expected frame size: {frame_size} bytes for {frame_duration} ms at {sample_rate} Hz")
 
-        # Ensure audio data length is valid
-        if len(audio_data) < frame_size:
-            logging.debug(f"Audio frame too short: {len(audio_data)} bytes")
+        try:
+            # Ensure audio data length is valid
+            if len(audio_data) < frame_size:
+                logging.debug(f"Audio frame too short: {len(audio_data)} bytes")
+                return False
+
+            # Ensure we have the correct number of bytes for 16-bit audio
+            if len(audio_data) % 2 != 0:
+                logging.debug("Received odd number of bytes for 16-bit audio")
+                return False
+
+            offset = 0
+            speech_detected = False
+
+            while offset + frame_size <= len(audio_data):
+                frame = audio_data[offset:offset + frame_size]
+
+                try:
+                    # Check if we have a complete frame
+                    if len(frame) == frame_size:
+                        is_speech = vad.is_speech(frame, sample_rate)
+                        logging.debug(f"VAD decision for frame: {is_speech}")
+                        if is_speech:
+                            speech_detected = True
+                            break
+                except Exception as frame_error:
+                    logging.debug(f"Error processing specific frame: {str(frame_error)}")
+                    logging.debug(f"Frame data length: {len(frame)}, Frame data type: {type(frame)}")
+                    logging.debug(f"Frame data (first 10 bytes): {frame[:10]}")
+                    # Continue with next frame instead of failing completely
+                    pass
+
+                offset += frame_size
+
+            return speech_detected
+
+        except Exception as e:
+            logging.error(f"Error in is_speech: {str(e)}")
+            # Log the audio data details for debugging
+            logging.debug(f"Audio data type: {type(audio_data)}, length: {len(audio_data)}")
             return False
-
-        # Ensure we have the correct number of bytes for 16-bit audio
-        if len(audio_data) % 2 != 0:
-            logging.debug("Received odd number of bytes for 16-bit audio")
-            return False
-
-        offset = 0
-        speech_detected = False
-
-        while offset + frame_size <= len(audio_data):
-            frame = audio_data[offset:offset + frame_size]
-
-            try:
-                # Check if we have a complete frame
-                if len(frame) == frame_size:
-                    is_speech = vad.is_speech(frame, sample_rate)
-                    if is_speech:
-                        speech_detected = True
-                        break
-            except Exception as frame_error:
-                logging.debug(f"Error processing specific frame: {str(frame_error)}")
-                logging.debug(f"Frame data length: {len(frame)}, Frame data type: {type(frame)}")
-                logging.debug(f"Frame data (first 10 bytes): {frame[:10]}")
-                # Continue with next frame instead of failing completely
-                pass
-
-            offset += frame_size
-
-        return speech_detected
 
     except Exception as e:
         logging.error(f"Error in is_speech: {str(e)}")
