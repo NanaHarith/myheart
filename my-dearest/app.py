@@ -211,7 +211,7 @@ def handle_request_audio(data):
     try:
         audio_data = generate_audio(data['text'])
         if audio_data:
-            emit('audio_data', audio_data, broadcast=True)
+            emit('audio_data', audio_data, broadcast=True, binary=True)
         else:
             emit('audio_error', {'error': 'Failed to generate audio'})
     except Exception as e:
