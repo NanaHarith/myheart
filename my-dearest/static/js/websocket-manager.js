@@ -14,7 +14,9 @@ class WebSocketManager {
         if (this.pendingReconnection) return;
 
         this.socket = io({
-            reconnection: false // We'll handle reconnection ourselves
+            reconnection: true,
+            reconnectionAttempts: 5,
+            reconnectionDelay: 2000
         });
 
         this.setupEventListeners();

@@ -11,8 +11,7 @@ import wave
 import time
 from streaming_tts import stream_tts
 from dotenv import load_dotenv
-import threading
-import queue
+import asyncio
 import engineio
 load_dotenv()
 # Set up logging
@@ -37,15 +36,7 @@ API_KEY = os.getenv("SP_API_KEY")
 VOICE_ID = "28c4d41d-8811-4ca0-9515-377d6ca2c715"
 
 app = Flask(__name__)
-socketio = SocketIO(
-    app,
-    cors_allowed_origins="*",
-    async_mode='threading',
-    binary=True,  # Enable binary data handling
-    logger=True,  # Enable Socket.IO logger
-    engineio_logger=True,  # Enable Engine.IO logger
-    max_http_buffer_size=1024 * 1024  # 1MB buffer size
-)
+socketio = SocketIO(app, cors_allowed_origins="*", async_mode='eventlet')
 client = AsyncOpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 conversation_history = []
