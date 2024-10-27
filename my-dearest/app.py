@@ -224,6 +224,7 @@ def is_speech(audio_data):
         sample_rate = 16000
         frame_duration = 30  # in milliseconds
         frame_size = int(sample_rate * (frame_duration / 1000.0))
+        logging.debug(f"Expected frame size: {frame_size} bytes for {frame_duration} ms at {sample_rate} Hz")
 
         # Ensure audio data length is valid
         if len(audio_data) < frame_size:
