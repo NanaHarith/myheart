@@ -354,3 +354,87 @@ def handle_ping():
 
 if __name__ == '__main__':
     socketio.run(app, allow_unsafe_werkzeug=True, debug=True, use_reloader=False)
+import os
+import logging
+from flask import Flask, request, jsonify
+from flask_socketio import SocketIO, emit
+import webrtcvad
+from streaming_tts import stream_tts
+from dotenv import load_dotenv
+
+load_dotenv()
+
+# Set up logging
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+
+app = Flask(__name__)
+socketio = SocketIO(app, cors_allowed_origins="*", async_mode='eventlet')
+
+vad = webrtcvad.Vad(2)  # Aggressiveness mode (0-3)
+
+@app.route('/')
+def index():
+    return "Welcome to the Speech-to-Speech App!"
+
+@socketio.on('audio_data')
+def handle_audio_data(data):
+    try:
+        if not data:
+            logging.debug("Received empty audio data")
+            emit('speech_detected', {'detected': False})
+            return
+
+        audio_data = data
+        if isinstance(audio_data, str):
+            audio_data = audio_data.encode('utf-8')
+
+        if len(audio_data) < 1024:
+            logging.debug(f"Audio data too short: {len(audio_data)} bytes")
+            emit('speech_detected', {'detected': False})
+            return
+
+        logging.debug(f"Processing audio data: type={type(audio_data)}, length={len(audio_data)}")
+        speech_detected = is_speech(audio_data)
+        emit('speech_detected', {'detected': speech_detected})
+
+        if speech_detected:
+            logging.debug("Speech detected in audio frame")
+            # Here you would convert the detected speech to text and back to speech
+            # For simplicity, we'll just emit a placeholder response
+            emit('tts_response', {'text': "Speech detected and processed!"})
+
+    except Exception as e:
+        logging.error(f"Error in handle_audio_data: {str(e)}")
+        emit('speech_detected', {'detected': False})
+
+def is_speech(audio_data):
+    sample_rate = 16000
+    frame_duration = 30  # in milliseconds
+    frame_size = int(sample_rate * (frame_duration / 1000.0))
+    logging.debug(f"Expected frame size: {frame_size} bytes for {frame_duration} ms at {sample_rate} Hz")
+
+    if len(audio_data) < frame_size:
+        logging.debug(f"Audio frame too short: {len(audio_data)} bytes")
+        return False
+
+    if len(audio_data) % 2 != 0:
+        logging.debug("Received odd number of bytes for 16-bit audio")
+        return False
+
+    offset = 0
+    speech_detected = False
+
+    while offset + frame_size <= len(audio_data):
+        frame = audio_data[offset:offset + frame_size]
+        if len(frame) == frame_size:
+            is_speech = vad.is_speech(frame, sample_rate)
+            logging.debug(f"VAD decision for frame: {is_speech}")
+            if is_speech:
+                speech_detected = True
+                break
+        offset += frame_size
+
+    return speech_detected
+
+if __name__ == '__main__':
+    socketio.run(app, allow_unsafe_werkzeug=True, debug=True, use_reloader=False)
