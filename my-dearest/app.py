@@ -15,6 +15,7 @@ socketio = SocketIO(app, cors_allowed_origins="*")
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 conversation_history = []
 conversation_active = True
+is_playing_audio = False  # Flag to indicate if audio is being played
 vad = webrtcvad.Vad(3)  # Aggressiveness mode (0-3)
 
 # Speechify API settings
@@ -63,11 +64,17 @@ def process_command(command):
     conversation_history.append({"role": "user", "content": command})
     response = get_ai_response(conversation_history)
     emit('ai_response', {'text': response, 'is_final': True})
+    global is_playing_audio
     audio_url = generate_audio(response)
+    is_playing_audio = True  # Set flag to true when starting audio playback
     emit('audio_response', {'url': audio_url})
 
 @socketio.on('audio_data')
 def handle_audio_data(data):
+    global is_playing_audio
+    if is_playing_audio:
+        emit('speech_detected', {'detected': False})
+        return
     if is_speech(data):
         emit('speech_detected', {'detected': True})
     else:
@@ -164,7 +171,9 @@ def stream_audio():
 
         if response.ok:
             audio_stream = io.BytesIO(response.content)
-            return send_file(audio_stream, mimetype='audio/mpeg')
+            response = send_file(audio_stream, mimetype='audio/mpeg')
+            is_playing_audio = False  # Reset flag after audio playback
+            return response
         else:
             return jsonify({"error": "Failed to stream audio"}), response.status_code
 
