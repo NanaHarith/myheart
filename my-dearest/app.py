@@ -22,7 +22,7 @@ vad = webrtcvad.Vad(3)  # Aggressiveness mode (0-3)
 # Speechify API settings
 API_BASE_URL = "https://api.sws.speechify.com"
 API_KEY = os.getenv("SP_API_KEY") # Replace with your actual API key
-# VOICE_ID = "cc0ff3e9-582a-4bb3-8db8-d084e10963e0"
+# VOICE_ID = "cc0ff3e9-582a-4bb38db8-d084e10963e0"
 VOICE_ID = "28c4d41d-8811-4ca0-9515-377d6ca2c715"
 
 @app.route('/')
