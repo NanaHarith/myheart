@@ -1,5 +1,6 @@
 import os
 import io
+import threading
 from flask import Flask, render_template, send_from_directory, request, send_file, jsonify
 from flask_socketio import SocketIO, emit
 from openai import OpenAI
@@ -73,6 +74,16 @@ def process_command(command):
     audio_url = generate_audio(response)
     is_playing_audio = True  # Set flag to true when starting audio playback
     emit('audio_response', {'url': audio_url}, broadcast=True)
+    
+    # Start a cooldown period
+    listening_active = False
+    cooldown_period = 5  # seconds
+    threading.Timer(cooldown_period, reset_listening).start()
+
+def reset_listening():
+    global listening_active
+    listening_active = True
+    print("Listening re-enabled after cooldown")
 
 @socketio.on('audio_data')
 def handle_audio_data(data):
