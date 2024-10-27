@@ -373,7 +373,10 @@ def handle_ping():
     emit('pong')
 
 if __name__ == '__main__':
-    socketio.run(app, allow_unsafe_werkzeug=True, debug=True, use_reloader=False, port=5001)
+    try:
+        socketio.run(app, allow_unsafe_werkzeug=True, debug=True, use_reloader=False, port=5001)
+    except KeyboardInterrupt:
+        logging.info("Server shutdown gracefully.")
 import os
 import logging
 from flask import Flask, request, jsonify
