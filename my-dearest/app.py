@@ -80,21 +80,21 @@ def handle_audio_data(data):
     if is_playing_audio:
         emit('speech_detected', {'detected': False})
         return
-    # Handle audio data here
-
-    # Assuming the audio data is in raw PCM format, wrap it with a WAV header
-    with io.BytesIO() as wav_io:
-        with wave.open(wav_io, 'wb') as wav_file:
-            wav_file.setnchannels(1)  # Mono
-            wav_file.setsampwidth(2)  # 16-bit
-            wav_file.setframerate(16000)  # 16kHz
-            wav_file.writeframes(data)
-        return wav_io.getvalue()
+    # Process and emit audio data
     try:
-        audio = wave.open(io.BytesIO(data), 'rb')
+        with io.BytesIO() as wav_io:
+            with wave.open(wav_io, 'wb') as wav_file:
+                wav_file.setnchannels(1)  # Mono
+                wav_file.setsampwidth(2)  # 16-bit
+                wav_file.setframerate(16000)  # 16kHz
+                wav_file.writeframes(data)
+            audio_data = wav_io.getvalue()
+
+        audio = wave.open(io.BytesIO(audio_data), 'rb')
         if audio.getnchannels() != 1 or audio.getsampwidth() != 2:
             print("Audio format not supported: must be mono and 16-bit")
-            return False
+            emit('speech_detected', {'detected': False})
+            return
 
         sample_rate = audio.getframerate()
         audio_data = audio.readframes(audio.getnframes())
@@ -102,18 +102,21 @@ def handle_audio_data(data):
         frame_duration = 30  # in milliseconds
         frame_size = int(sample_rate * (frame_duration / 1000.0) * 2)
         offset = 0
+        speech_detected = False
         while offset + frame_size <= len(audio_data):
             frame = audio_data[offset:offset + frame_size]
             if vad.is_speech(frame, sample_rate):
-                return True
+                speech_detected = True
+                break
             offset += frame_size
-        return False
+
+        emit('speech_detected', {'detected': speech_detected})
     except wave.Error as e:
-        print(f"Wave error in is_speech: {str(e)}")
-        return False
+        print(f"Wave error in handle_audio_data: {str(e)}")
+        emit('speech_detected', {'detected': False})
     except Exception as e:
-        print(f"Error in is_speech: {str(e)}")
-        return False
+        print(f"Error in handle_audio_data: {str(e)}")
+        emit('speech_detected', {'detected': False})
 
 def get_ai_response(conversation):
     print("Sending request to OpenAI")

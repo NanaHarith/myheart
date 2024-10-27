@@ -133,7 +133,8 @@
             const average = dataArray.reduce((a, b) => a + b) / dataArray.length;
             console.log('Audio average:', average);
             if (average > 50) {  // Adjust this threshold as needed
-                socket.emit('audio_data', dataArray.buffer);
+                const audioBuffer = new Uint8Array(dataArray);
+                socket.emit('audio_data', audioBuffer);
             }
             if (isListening) {
                 requestAnimationFrame(detectSpeech);
