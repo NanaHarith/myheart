@@ -373,7 +373,7 @@ def handle_ping():
     emit('pong')
 
 if __name__ == '__main__':
-    socketio.run(app, allow_unsafe_werkzeug=True, debug=True, use_reloader=False)
+    socketio.run(app, allow_unsafe_werkzeug=True, debug=True, use_reloader=False, port=5001)
 import os
 import logging
 from flask import Flask, request, jsonify
