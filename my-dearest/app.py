@@ -139,13 +139,14 @@ def get_ai_response(conversation):
         for chunk in response:
             if chunk.choices[0].delta.content is not None:
                 collected_messages.append(chunk.choices[0].delta.content)
-                full_reply_content = ''.join(collected_messages).strip()
-                print(f"Emitting partial response: {full_reply_content}")
-                emit('ai_response', {'text': full_reply_content, 'is_final': False})
+                partial_reply_content = ''.join(collected_messages).strip()
+                print(f"Emitting partial response: {partial_reply_content}")
+                emit('ai_response', {'text': partial_reply_content, 'is_final': False})
 
-        full_reply_content = ''.join(collected_messages).strip()
-        conversation_history.append({"role": "assistant", "content": full_reply_content})
-        return full_reply_content
+        final_reply_content = ''.join(collected_messages).strip()
+        conversation_history.append({"role": "assistant", "content": final_reply_content})
+        emit('ai_response', {'text': final_reply_content, 'is_final': True})
+        return final_reply_content
     except Exception as e:
         print(f"Error in get_ai_response: {str(e)}")
         return "Sorry, there was an error processing your request."
