@@ -80,12 +80,21 @@ def handle_audio_data(data):
     if is_playing_audio:
         emit('speech_detected', {'detected': False})
         return
-    if is_speech(data):
+    wav_data = wrap_audio_as_wav(data)
+    if is_speech(wav_data):
         emit('speech_detected', {'detected': True})
     else:
         emit('speech_detected', {'detected': False})
 
-def is_speech(audio_data):
+def wrap_audio_as_wav(audio_data):
+    # Assuming the audio data is in raw PCM format, wrap it with a WAV header
+    with io.BytesIO() as wav_io:
+        with wave.open(wav_io, 'wb') as wav_file:
+            wav_file.setnchannels(1)  # Mono
+            wav_file.setsampwidth(2)  # 16-bit
+            wav_file.setframerate(16000)  # 16kHz
+            wav_file.writeframes(audio_data)
+        return wav_io.getvalue()
     try:
         audio = wave.open(io.BytesIO(audio_data), 'rb')
         if audio.getnchannels() != 1 or audio.getsampwidth() != 2:
