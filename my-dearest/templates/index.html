@@ -70,6 +70,7 @@
                     isListening = true;
                     updateStatus('Listening for command...', 'listening');
                     startButton.textContent = 'Stop Listening';
+                    socket.emit('start_listening');
                 };
 
                 recognition.onresult = (event) => {
