@@ -44,12 +44,14 @@ def handle_disconnect():
 def start_listening():
     global listening_active
     listening_active = True
+    listening_active = True
     emit('listening_status', {'status': 'started'})
     print("Listening started")
 
 @socketio.on('stop_listening')
 def stop_listening():
     global listening_active
+    listening_active = False
     listening_active = False
     emit('listening_status', {'status': 'stopped'})
     print("Listening stopped")
