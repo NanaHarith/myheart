@@ -38,7 +38,7 @@ API_KEY = os.getenv("SP_API_KEY")
 VOICE_ID = "28c4d41d-8811-4ca0-9515-377d6ca2c715"
 
 app = Flask(__name__)
-socketio = SocketIO(app, cors_allowed_origins="*", async_mode='eventlet')
+socketio = SocketIO(app, cors_allowed_origins="*", async_mode='gevent')
 client = AsyncOpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 conversation_history = []
