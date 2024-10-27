@@ -147,6 +147,7 @@ def get_ai_response(conversation):
         )
 
         final_reply_content = ""
+        final_emitted = False
         for chunk in response:
             if chunk.choices[0].delta.content is not None:
                 final_reply_content += chunk.choices[0].delta.content
@@ -154,9 +155,11 @@ def get_ai_response(conversation):
                 print(f"Emitting partial response: {partial_reply_content}")
                 emit('ai_response', {'text': partial_reply_content, 'is_final': False})
 
-        final_reply_content = final_reply_content.strip()
-        conversation_history.append({"role": "assistant", "content": final_reply_content})
-        emit('ai_response', {'text': final_reply_content, 'is_final': True})
+        if not final_emitted:
+            final_reply_content = final_reply_content.strip()
+            conversation_history.append({"role": "assistant", "content": final_reply_content})
+            emit('ai_response', {'text': final_reply_content, 'is_final': True})
+            final_emitted = True
         return final_reply_content
     except Exception as e:
         print(f"Error in get_ai_response: {str(e)}")
