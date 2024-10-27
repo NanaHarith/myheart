@@ -162,7 +162,10 @@ def generate_audio(text):
         })
 
         if response.ok:
-            return response.content
+            audio_file_path = 'static/audio/response.mp3'
+            with open(audio_file_path, 'wb') as audio_file:
+                audio_file.write(response.content)
+            return f"/{audio_file_path}"
         else:
             print(f"Failed to generate audio: {response.status_code}")
             print(f"Response content: {response.content}")  # Add this line for more debug info
