@@ -70,7 +70,7 @@ def process_command(command):
     global is_playing_audio
     audio_url = generate_audio(response)
     is_playing_audio = True  # Set flag to true when starting audio playback
-    emit('audio_response', {'url': audio_url})
+    emit('audio_response', {'url': audio_url}, broadcast=True)
 
 @socketio.on('audio_data')
 def handle_audio_data(data):
@@ -78,7 +78,7 @@ def handle_audio_data(data):
     if is_playing_audio:
         emit('speech_detected', {'detected': False})
         return
-    if is_speech(data):
+    if is_speech(io.BytesIO(data)):
         emit('speech_detected', {'detected': True})
     else:
         emit('speech_detected', {'detected': False})
@@ -153,7 +153,7 @@ def generate_audio(text):
         })
 
         if response.ok:
-            return f"/stream_audio?text={text}"
+            return response.content
         else:
             print(f"Failed to generate audio: {response.status_code}")
             print(f"Response content: {response.content}")  # Add this line for more debug info
@@ -163,32 +163,16 @@ def generate_audio(text):
         print(f"Error in generate_audio: {str(e)}")
         return None
 
-@app.route('/stream_audio')
-def stream_audio():
-    text = request.args.get('text')
-    if not text:
-        return jsonify({"error": "No text provided"}), 400
-
+@socketio.on('request_audio')
+def handle_request_audio(data):
     try:
-        response = requests.post(f"{API_BASE_URL}/v1/audio/stream", json={
-            "input": f"<speak>{text}</speak>",
-            "voice_id": VOICE_ID,
-        }, headers={
-            "Authorization": f"Bearer {API_KEY}",
-            "Content-Type": "application/json",
-            "Accept": "audio/mpeg"
-        })
-
-        if response.ok:
-            audio_stream = io.BytesIO(response.content)
-            response = send_file(audio_stream, mimetype='audio/mpeg')
-            is_playing_audio = False  # Reset flag after audio playback
-            return response
+        audio_data = generate_audio(data['text'])
+        if audio_data:
+            emit('audio_data', audio_data, broadcast=True)
         else:
-            return jsonify({"error": "Failed to stream audio"}), response.status_code
-
+            emit('audio_error', {'error': 'Failed to generate audio'})
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        emit('audio_error', {'error': str(e)})
 
 if __name__ == '__main__':
     socketio.run(app, allow_unsafe_werkzeug=True, debug=True)
