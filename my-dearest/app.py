@@ -159,10 +159,10 @@ def get_ai_response(conversation):
     final_reply_content = final_reply_content.strip()
     conversation_history.append({"role": "assistant", "content": final_reply_content})
     emit('ai_response', {'text': final_reply_content, 'is_final': True})
-        return final_reply_content
-    except Exception as e:
-        print(f"Error in get_ai_response: {str(e)}")
-        return "Sorry, there was an error processing your request."
+    return final_reply_content
+except Exception as e:
+    print(f"Error in get_ai_response: {str(e)}")
+    return "Sorry, there was an error processing your request."
 
 def generate_audio(text):
     try:
