@@ -144,25 +144,24 @@ def get_ai_response(conversation):
             messages=conversation,
             stream=True
         )
+        final_reply_content = ""
+        last_emitted_content = ""
+        for chunk in response:
+            if chunk.choices[0].delta.content is not None:
+                final_reply_content += chunk.choices[0].delta.content
+                partial_reply_content = final_reply_content.strip()
+                if partial_reply_content != last_emitted_content:
+                    print(f"Emitting partial response: {partial_reply_content}")
+                    emit('ai_response', {'text': partial_reply_content, 'is_final': False})
+                    last_emitted_content = partial_reply_content
 
-    final_reply_content = ""
-    last_emitted_content = ""
-    for chunk in response:
-        if chunk.choices[0].delta.content is not None:
-            final_reply_content += chunk.choices[0].delta.content
-            partial_reply_content = final_reply_content.strip()
-            if partial_reply_content != last_emitted_content:
-                print(f"Emitting partial response: {partial_reply_content}")
-                emit('ai_response', {'text': partial_reply_content, 'is_final': False})
-                last_emitted_content = partial_reply_content
-
-    final_reply_content = final_reply_content.strip()
-    conversation_history.append({"role": "assistant", "content": final_reply_content})
-    emit('ai_response', {'text': final_reply_content, 'is_final': True})
-    return final_reply_content
-except Exception as e:
-    print(f"Error in get_ai_response: {str(e)}")
-    return "Sorry, there was an error processing your request."
+        final_reply_content = final_reply_content.strip()
+        conversation_history.append({"role": "assistant", "content": final_reply_content})
+        emit('ai_response', {'text': final_reply_content, 'is_final': True})
+        return final_reply_content
+    except Exception as e:
+        print(f"Error in get_ai_response: {str(e)}")
+        return "Sorry, there was an error processing your request."
 
 def generate_audio(text):
     try:
