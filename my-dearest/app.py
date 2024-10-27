@@ -80,7 +80,7 @@ def handle_audio_data(data):
     if is_playing_audio:
         emit('speech_detected', {'detected': False})
         return
-    if is_speech(io.BytesIO(data)):
+    if is_speech(data):
         emit('speech_detected', {'detected': True})
     else:
         emit('speech_detected', {'detected': False})
