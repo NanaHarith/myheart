@@ -77,8 +77,7 @@ def process_command(command):
     
     # Start a cooldown period
     listening_active = False
-    cooldown_period = 5  # seconds
-    threading.Timer(cooldown_period, reset_listening).start()
+    # Listening will be re-enabled after audio playback is finished
 
 def reset_listening():
     global listening_active
@@ -201,5 +200,7 @@ def handle_request_audio(data):
     except Exception as e:
         emit('audio_error', {'error': str(e)})
 
-if __name__ == '__main__':
+@socketio.on('audio_finished')
+def handle_audio_finished():
+    reset_listening()
     socketio.run(app, allow_unsafe_werkzeug=True, debug=True)

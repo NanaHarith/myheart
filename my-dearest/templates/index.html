@@ -155,7 +155,11 @@
             if (data.url) {
                 responseAudio.src = data.url.startsWith('/') ? data.url : URL.createObjectURL(new Blob([data.url], { type: 'audio/mpeg' }));
                 responseAudio.style.display = 'block';
-                responseAudio.play().catch(e => console.error('Error playing audio:', e));
+                responseAudio.play().catch(e => console.error('Error playing audio:', e)).then(() => {
+                    responseAudio.onended = () => {
+                        socket.emit('audio_finished');
+                    };
+                });
             } else {
                 console.error('Received null or undefined audio URL');
             }
