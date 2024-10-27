@@ -203,4 +203,6 @@ def handle_request_audio(data):
 @socketio.on('audio_finished')
 def handle_audio_finished():
     reset_listening()
+
+if __name__ == '__main__':
     socketio.run(app, allow_unsafe_werkzeug=True, debug=True)
