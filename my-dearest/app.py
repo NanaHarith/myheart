@@ -146,15 +146,15 @@ def get_ai_response(conversation):
             stream=True
         )
 
-        collected_messages = []
+        final_reply_content = ""
         for chunk in response:
             if chunk.choices[0].delta.content is not None:
-                collected_messages.append(chunk.choices[0].delta.content)
-                partial_reply_content = ''.join(collected_messages).strip()
+                final_reply_content += chunk.choices[0].delta.content
+                partial_reply_content = final_reply_content.strip()
                 print(f"Emitting partial response: {partial_reply_content}")
                 emit('ai_response', {'text': partial_reply_content, 'is_final': False})
 
-        final_reply_content = ''.join(collected_messages).strip()
+        final_reply_content = final_reply_content.strip()
         conversation_history.append({"role": "assistant", "content": final_reply_content})
         emit('ai_response', {'text': final_reply_content, 'is_final': True})
         return final_reply_content
