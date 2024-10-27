@@ -68,8 +68,14 @@ class WebSocketManager {
             resultDiv.textContent = data.text;
         });
 
+        this.socket.on('audio_response', (data) => {
+            if (data.url) {
+                const audio = new Audio(data.url);
+                audio.play();
+            }
+        });
+
         this.socket.on('audio_chunk', (data) => {
-            // Implement your audio chunk handler
             if (data.chunk) {
                 // Handle audio chunk playback
             }

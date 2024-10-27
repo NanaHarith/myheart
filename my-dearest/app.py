@@ -15,7 +15,7 @@ from streaming_tts import stream_tts
 from dotenv import load_dotenv
 import asyncio
 import engineio
-from google.cloud import speech  # Import Google Cloud Speech-to-Text
+from google.cloud import speech_v1p1beta1 as speech  # Import Google Cloud Speech-to-Text
 load_dotenv()
 # Set up logging
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -58,9 +58,10 @@ is_speaking = False
 tts_queue = queue.Queue()
 
 def detect_wake_word(audio_data):
-    # Implement wake word detection logic here
-    # Return True if "Hi dearest" is detected, otherwise False
-    pass
+    # Placeholder for wake word detection logic
+    # This function should return True if "Hi dearest" is detected
+    # For now, we'll simulate detection with a simple condition
+    return "hi dearest" in audio_data.lower()
 
 @app.route('/')
 def index():
@@ -111,13 +112,17 @@ async def process_command(command):
     is_speaking = True
     emit('system_speaking', {'speaking': True})
 
-    if USE_STREAMING_TTS:
-        await stream_response(conversation_history)
-    else:
-        response = await get_ai_response(conversation_history)
-        emit('ai_response', {'text': response, 'is_final': True})
-        audio_url = await generate_audio(response)
-        emit('audio_response', {'url': audio_url})
+    # Send to multiple LLMs
+    responses = await asyncio.gather(
+        get_ai_response(conversation_history, model="gpt-3.5-turbo"),
+        get_ai_response(conversation_history, model="llama"),
+        # Add more LLMs as needed
+    )
+
+    combined_response = " ".join(responses)
+    emit('ai_response', {'text': combined_response, 'is_final': True})
+    audio_url = await generate_audio(combined_response)
+    emit('audio_response', {'url': audio_url})
 
     is_speaking = False
     emit('system_speaking', {'speaking': False})
@@ -189,43 +194,49 @@ def handle_audio_data(data):
         if is_speaking:
             return
 
-        # Input validation
         if not data:
             logging.debug("Received empty audio data")
             emit('speech_detected', {'detected': False})
             return
 
-        # Convert string data to bytes if needed
         audio_data = data
         if isinstance(audio_data, str):
-            try:
-                audio_data = audio_data.encode('utf-8')
-            except UnicodeEncodeError as e:
-                logging.error(f"Error encoding audio data: {str(e)}")
-                emit('speech_detected', {'detected': False})
-                return
+            audio_data = audio_data.encode('utf-8')
 
-        # Validate audio data length
-        if len(audio_data) < 1024:  # Minimum reasonable size for audio frame
+        if len(audio_data) < 1024:
             logging.debug(f"Audio data too short: {len(audio_data)} bytes")
             emit('speech_detected', {'detected': False})
             return
 
-        # Log successful processing
         logging.debug(f"Processing audio data: type={type(audio_data)}, length={len(audio_data)}")
-        logging.debug(f"Audio data (first 20 bytes): {audio_data[:20]}")
-
         speech_detected = is_speech(audio_data)
         emit('speech_detected', {'detected': speech_detected})
 
         if speech_detected:
             logging.debug("Speech detected in audio frame")
-        else:
-            logging.debug("No speech detected in audio frame")
+            # Convert speech to text
+            transcript = transcribe_audio(audio_data)
+            if transcript:
+                emit('transcription', transcript)
 
     except Exception as e:
         logging.error(f"Error in handle_audio_data: {str(e)}")
         emit('speech_detected', {'detected': False})
+
+def transcribe_audio(audio_data):
+    client = speech.SpeechClient()
+    audio = speech.RecognitionAudio(content=audio_data)
+    config = speech.RecognitionConfig(
+        encoding=speech.RecognitionConfig.AudioEncoding.LINEAR16,
+        sample_rate_hertz=16000,
+        language_code="en-US",
+    )
+
+    response = client.recognize(config=config, audio=audio)
+    for result in response.results:
+        logging.info(f"Transcript: {result.alternatives[0].transcript}")
+        return result.alternatives[0].transcript
+    return None
 
 
 def is_speech(audio_data):
