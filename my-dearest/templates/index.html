@@ -68,7 +68,7 @@
 
                 recognition.onstart = () => {
                     isListening = true;
-                    updateStatus('Listening for wake word...', 'listening');
+                    updateStatus('Listening for command...', 'listening');
                     startButton.textContent = 'Stop Listening';
                 };
 
@@ -140,10 +140,6 @@
             }
         }
 
-        socket.on('wake_word_detected', function() {
-            beepSound.play();
-            updateStatus('Wake word detected! Listening for command...', 'listening');
-        });
 
         socket.on('ai_response', function(data) {
             resultDiv.textContent = data.text;
