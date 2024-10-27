@@ -88,10 +88,10 @@ def handle_audio_data(data):
             wav_file.setnchannels(1)  # Mono
             wav_file.setsampwidth(2)  # 16-bit
             wav_file.setframerate(16000)  # 16kHz
-            wav_file.writeframes(audio_data)
+            wav_file.writeframes(data)
         return wav_io.getvalue()
     try:
-        audio = wave.open(io.BytesIO(audio_data), 'rb')
+        audio = wave.open(io.BytesIO(data), 'rb')
         if audio.getnchannels() != 1 or audio.getsampwidth() != 2:
             print("Audio format not supported: must be mono and 16-bit")
             return False
