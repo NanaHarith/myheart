@@ -86,6 +86,10 @@ def handle_audio_data(data):
 def is_speech(audio_data):
     try:
         audio = wave.open(io.BytesIO(audio_data), 'rb')
+        if audio.getnchannels() != 1 or audio.getsampwidth() != 2:
+            print("Audio format not supported: must be mono and 16-bit")
+            return False
+
         sample_rate = audio.getframerate()
         audio_data = audio.readframes(audio.getnframes())
 
@@ -97,6 +101,9 @@ def is_speech(audio_data):
             if vad.is_speech(frame, sample_rate):
                 return True
             offset += frame_size
+        return False
+    except wave.Error as e:
+        print(f"Wave error in is_speech: {str(e)}")
         return False
     except Exception as e:
         print(f"Error in is_speech: {str(e)}")
