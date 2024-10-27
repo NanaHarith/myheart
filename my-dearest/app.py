@@ -15,6 +15,7 @@ from streaming_tts import stream_tts
 from dotenv import load_dotenv
 import asyncio
 import engineio
+from google.cloud import speech  # Import Google Cloud Speech-to-Text
 load_dotenv()
 # Set up logging
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -55,6 +56,11 @@ COOLDOWN_PERIOD = float(os.getenv('COOLDOWN_PERIOD', 0))
 
 is_speaking = False
 tts_queue = queue.Queue()
+
+def detect_wake_word(audio_data):
+    # Implement wake word detection logic here
+    # Return True if "Hi dearest" is detected, otherwise False
+    pass
 
 @app.route('/')
 def index():
