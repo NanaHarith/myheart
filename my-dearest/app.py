@@ -9,6 +9,7 @@ from flask import Flask, render_template, send_from_directory, request, send_fil
 from flask_socketio import SocketIO, emit, Namespace
 from openai import AsyncOpenAI
 import webrtcvad
+from pocketsphinx import LiveSpeech
 import wave
 import time
 from streaming_tts import stream_tts
@@ -58,10 +59,12 @@ is_speaking = False
 tts_queue = queue.Queue()
 
 def detect_wake_word(audio_data):
-    # Placeholder for wake word detection logic
-    # This function should return True if "Hi dearest" is detected
-    # For now, we'll simulate detection with a simple condition
-    return "hi dearest" in audio_data.lower()
+    # Use pocketsphinx for wake word detection
+    speech = LiveSpeech(lm=False, keyphrase='hi dearest', kws_threshold=1e-20)
+    for phrase in speech:
+        if phrase.segments(detailed=True):
+            return True
+    return False
 
 @app.route('/')
 def index():
