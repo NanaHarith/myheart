@@ -14,7 +14,7 @@ app = Flask(__name__)
 socketio = SocketIO(app, cors_allowed_origins="*")
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 conversation_history = []
-conversation_active = True
+listening_active = False  # Flag to indicate if the system is actively listening
 is_playing_audio = False  # Flag to indicate if audio is being played
 vad = webrtcvad.Vad(3)  # Aggressiveness mode (0-3)
 
@@ -40,25 +40,28 @@ def handle_connect():
 def handle_disconnect():
     print('Client disconnected')
 
+@socketio.on('start_listening')
+def start_listening():
+    global listening_active
+    listening_active = True
+    print("Listening started")
+
+@socketio.on('stop_listening')
+def stop_listening():
+    global listening_active
+    listening_active = False
+    print("Listening stopped")
+
 @socketio.on('transcription')
 def handle_transcription(transcription):
-    global conversation_active
+    global listening_active
+
+    if not listening_active:
+        print("Not listening")
+        return
 
     print(f"Received transcription: {transcription}")
-
-    cleaned_transcription = ''.join(char.lower() for char in transcription if char.isalnum() or char.isspace())
-
-    if not conversation_active and "hey buddy" in cleaned_transcription:
-        print("Wake word detected")
-        conversation_active = True
-        emit('wake_word_detected')
-        actual_command = cleaned_transcription.split("hey buddy", 1)[1].strip()
-        if actual_command:
-            process_command(actual_command)
-    elif conversation_active:
-        process_command(transcription)
-    else:
-        print("Wake word not detected")
+    process_command(transcription)
 
 def process_command(command):
     conversation_history.append({"role": "user", "content": command})
