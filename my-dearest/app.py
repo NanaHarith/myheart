@@ -207,12 +207,15 @@ def handle_audio_data(data):
 
         # Log successful processing
         logging.debug(f"Processing audio data: type={type(audio_data)}, length={len(audio_data)}")
+        logging.debug(f"Audio data (first 20 bytes): {audio_data[:20]}")
 
         speech_detected = is_speech(audio_data)
         emit('speech_detected', {'detected': speech_detected})
 
         if speech_detected:
             logging.debug("Speech detected in audio frame")
+        else:
+            logging.debug("No speech detected in audio frame")
 
     except Exception as e:
         logging.error(f"Error in handle_audio_data: {str(e)}")
