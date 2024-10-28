@@ -8,7 +8,7 @@ API_BASE_URL = "https://api.sws.speechify.com"
 API_KEY = os.getenv("SP_API_KEY")
 VOICE_ID = "28c4d41d-8811-4ca0-9515-377d6ca2c715"
 
-def generate_audio(text):
+def generate_audio(text, chunk_size=4096):
     try:
         response = requests.post(
             f"{API_BASE_URL}/v1/audio/stream",
