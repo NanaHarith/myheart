@@ -158,6 +158,7 @@
                 responseAudio.play().catch(e => console.error('Error playing audio:', e)).then(() => {
                     responseAudio.onended = () => {
                         socket.emit('audio_finished');
+                        updateStatus('Ready to listen...', 'ready');
                     };
                 });
             } else {

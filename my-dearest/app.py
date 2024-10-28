@@ -182,7 +182,6 @@ def handle_request_audio(data):
 
 @socketio.on('audio_finished')
 def handle_audio_finished():
-    socketio.sleep(1)  # Ensure a brief pause before re-enabling listening
     reset_listening()
 
 if __name__ == '__main__':
