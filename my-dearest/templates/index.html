@@ -146,7 +146,7 @@
         socket.on('ai_response', function(data) {
             resultDiv.textContent = data.text;
             if (data.is_final) {
-                updateStatus('Listening for wake word...', 'ready');
+                updateStatus('Ready to listen...', 'ready');
             }
             logMessage('AI Response: ' + data.text);
         });
