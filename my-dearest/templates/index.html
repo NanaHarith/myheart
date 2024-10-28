@@ -153,6 +153,8 @@
 
         socket.on('audio_response', function(data) {
             if (data.url) {
+                responseAudio.pause();
+                responseAudio.currentTime = 0;
                 responseAudio.src = data.url.startsWith('/') ? data.url : URL.createObjectURL(new Blob([data.url], { type: 'audio/mpeg' }));
                 responseAudio.style.display = 'block';
                 responseAudio.play().catch(e => console.error('Error playing audio:', e)).then(() => {
