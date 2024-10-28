@@ -74,6 +74,7 @@ def handle_transcription(transcription):
 
     print(f"Received transcription: {transcription}")
     process_command(transcription)
+    socketio.sleep(0.1)  # Add a slight delay to prevent overwhelming the server
 
 def process_command(command):
     conversation_history.append({"role": "user", "content": command})

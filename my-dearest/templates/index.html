@@ -168,6 +168,10 @@
             }
         });
 
+        responseAudio.onplay = () => {
+            socket.emit('stop_listening');
+        };
+
         socket.on('speech_detected', function(data) {
             speechStatusDiv.textContent = data.detected ? 'Speech detected' : 'No speech detected';
             if (data.detected) {
