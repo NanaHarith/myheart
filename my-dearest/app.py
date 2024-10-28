@@ -68,9 +68,12 @@ def handle_transcription(transcription):
         return
 
     # Check if the transcription matches the last AI response
-    if conversation_history and conversation_history[-1]["role"] == "assistant" and transcription.strip().lower() == conversation_history[-1]["content"].strip().lower():
-        print("Ignoring transcription that matches the last AI response")
-        return
+    if conversation_history and conversation_history[-1]["role"] == "assistant":
+        last_response = conversation_history[-1]["content"].strip().lower()
+        current_transcription = transcription.strip().lower()
+        if current_transcription == last_response:
+            print("Ignoring transcription that matches the last AI response")
+            return
 
     print(f"Received transcription: {transcription}")
     process_command(transcription)
@@ -85,8 +88,8 @@ def process_command(command):
         audio_url = streaming_tts.generate_audio(response)
         is_playing_audio = True  # Set flag to true when starting audio playback
         emit('audio_response', {'url': audio_url}, broadcast=True)
-    except ConnectionAbortedError as e:
-        print(f"Connection aborted: {str(e)}")
+    except (ConnectionAbortedError, BrokenPipeError) as e:
+        print(f"Connection issue: {str(e)}")
     except Exception as e:
         print(f"Error during response emission: {str(e)}")
     
