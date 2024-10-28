@@ -6,6 +6,7 @@ from flask_socketio import SocketIO, emit
 from openai import OpenAI
 from dotenv import load_dotenv
 import webrtcvad
+import streaming_tts  # Import the streaming TTS module
 import wave
 import requests
 
@@ -18,6 +19,9 @@ conversation_history = []
 listening_active = False  # Flag to indicate if the system is actively listening
 is_playing_audio = False  # Flag to indicate if audio is being played
 vad = webrtcvad.Vad(3)  # Aggressiveness mode (0-3)
+
+# Flag to toggle streaming TTS
+USE_STREAMING_TTS = True
 
 # Speechify API settings
 API_BASE_URL = "https://api.sws.speechify.com"
@@ -71,7 +75,10 @@ def process_command(command):
     response = get_ai_response(conversation_history)
     emit('ai_response', {'text': response, 'is_final': True})
     global is_playing_audio
-    audio_url = generate_audio(response)
+    if USE_STREAMING_TTS:
+        audio_url = streaming_tts.generate_audio(response)
+    else:
+        audio_url = generate_audio(response)
     is_playing_audio = True  # Set flag to true when starting audio playback
     emit('audio_response', {'url': audio_url}, broadcast=True)
     
