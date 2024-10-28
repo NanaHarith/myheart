@@ -144,6 +144,7 @@ def get_ai_response(conversation):
             messages=conversation,
             stream=True
         )
+        )
         final_reply_content = ""
         last_emitted_content = ""
         for chunk in response:
