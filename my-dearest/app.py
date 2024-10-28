@@ -79,11 +79,16 @@ def handle_transcription(transcription):
 def process_command(command):
     conversation_history.append({"role": "user", "content": command})
     response = get_ai_response(conversation_history)
-    emit('ai_response', {'text': response, 'is_final': True})
-    global is_playing_audio
-    audio_url = streaming_tts.generate_audio(response)
-    is_playing_audio = True  # Set flag to true when starting audio playback
-    emit('audio_response', {'url': audio_url}, broadcast=True)
+    try:
+        emit('ai_response', {'text': response, 'is_final': True})
+        global is_playing_audio
+        audio_url = streaming_tts.generate_audio(response)
+        is_playing_audio = True  # Set flag to true when starting audio playback
+        emit('audio_response', {'url': audio_url}, broadcast=True)
+    except ConnectionAbortedError as e:
+        print(f"Connection aborted: {str(e)}")
+    except Exception as e:
+        print(f"Error during response emission: {str(e)}")
     
     # Start a cooldown period
     listening_active = False
