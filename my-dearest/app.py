@@ -78,6 +78,7 @@ def process_command(command):
     # Start a cooldown period
     listening_active = False
     # Listening will be re-enabled after audio playback is finished
+    socketio.sleep(1)  # Ensure a brief pause before re-enabling listening
 
 def reset_listening():
     global listening_active
@@ -201,6 +202,7 @@ def handle_request_audio(data):
 
 @socketio.on('audio_finished')
 def handle_audio_finished():
+    socketio.sleep(1)  # Ensure a brief pause before re-enabling listening
     reset_listening()
 
 if __name__ == '__main__':
