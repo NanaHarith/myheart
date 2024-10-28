@@ -8,7 +8,7 @@ API_BASE_URL = "https://api.sws.speechify.com"
 API_KEY = os.getenv("SP_API_KEY")
 VOICE_ID = "28c4d41d-8811-4ca0-9515-377d6ca2c715"
 
-def stream_tts(text, chunk_size=4096, batch_size=40):
+def generate_audio(text):
     try:
         response = requests.post(
             f"{API_BASE_URL}/v1/audio/stream",
@@ -27,7 +27,11 @@ def stream_tts(text, chunk_size=4096, batch_size=40):
         )
 
         if response.ok:
-            return response.iter_content(chunk_size=chunk_size)
+            audio_file_path = 'static/audio/response.mp3'
+            with open(audio_file_path, 'wb') as audio_file:
+                for chunk in response.iter_content(chunk_size=chunk_size):
+                    audio_file.write(chunk)
+            return f"/{audio_file_path}"
         else:
             print(f"Failed to generate audio: {response.status_code}")
             print(f"Response content: {response.content}")

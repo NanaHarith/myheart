@@ -76,7 +76,7 @@ def process_command(command):
     emit('ai_response', {'text': response, 'is_final': True})
     global is_playing_audio
     if USE_STREAMING_TTS:
-        audio_url = streaming_tts.generate_audio(response)
+        audio_url = streaming_tts.generate_audio(response) if USE_STREAMING_TTS else generate_audio(response)
     else:
         audio_url = generate_audio(response)
     is_playing_audio = True  # Set flag to true when starting audio playback
