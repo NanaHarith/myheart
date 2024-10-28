@@ -171,30 +171,6 @@ def get_ai_response(conversation):
         print(f"Error in get_ai_response: {str(e)}")
         return "Sorry, there was an error processing your request."
 
-def generate_audio(text):
-    try:
-        response = requests.post(f"{API_BASE_URL}/v1/audio/stream", json={
-            "input": f"<speak>{text}</speak>",
-            "voice_id": VOICE_ID,
-        }, headers={
-            "Authorization": f"Bearer {API_KEY}",
-            "Content-Type": "application/json",
-            "Accept": "audio/mpeg"
-        })
-
-        if response.ok:
-            audio_file_path = 'static/audio/response.mp3'
-            with open(audio_file_path, 'wb') as audio_file:
-                audio_file.write(response.content)
-            return f"/{audio_file_path}"
-        else:
-            print(f"Failed to generate audio: {response.status_code}")
-            print(f"Response content: {response.content}")  # Add this line for more debug info
-            return None
-
-    except Exception as e:
-        print(f"Error in generate_audio: {str(e)}")
-        return None
 
 @socketio.on('request_audio')
 def handle_request_audio(data):
