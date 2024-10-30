@@ -88,7 +88,9 @@ def handle_transcription(transcription):
         return
 
     print(f"Received transcription: {transcription}")
-    process_command(transcription)
+    # Remove the unique identifier from the transcription if present
+    clean_transcription = transcription.replace(unique_identifier, "").strip()
+    process_command(clean_transcription)
     socketio.sleep(0.1)  # Add a slight delay to prevent overwhelming the server
 
 def process_command(command):
