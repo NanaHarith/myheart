@@ -130,8 +130,8 @@ def is_audio_matching(transcription, response):
     # Extract features from the response audio
     response_features = audio_fingerprint.extract_features(audio)
     
-    # Extract features from the transcription (assuming it's converted to audio)
-    transcription_audio = AudioSegment.from_file("path/to/transcription/audio.mp3")
+    # Convert transcription to audio (this is a placeholder, replace with actual conversion)
+    transcription_audio = AudioSegment.silent(duration=1000)  # 1 second of silence as a placeholder
     transcription_features = audio_fingerprint.extract_features(transcription_audio)
     
     # Compare fingerprints

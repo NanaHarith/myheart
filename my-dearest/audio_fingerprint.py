@@ -14,7 +14,10 @@ def extract_features(audio_segment):
     features = []
     for i in range(len(bands) - 1):
         band = fft[(freq >= bands[i]) & (freq < bands[i+1])]
-        features.append(np.mean(np.abs(band)))
+        if band.size > 0:
+            features.append(np.mean(np.abs(band)))
+        else:
+            features.append(0)  # Handle empty band case
     return np.array(features)
 
 def compare_fingerprints(fp1, fp2):
