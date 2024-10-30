@@ -114,7 +114,6 @@ def process_command(command):
     except Exception as e:
         print(f"Error during response emission: {str(e)}")
     
-    # Immediately re-enable listening after processing
     # Ensure listening is re-enabled after processing
     listening_active = True
     emit('listening_status', {'status': 'started'}, broadcast=True)
