@@ -134,9 +134,11 @@ def is_audio_matching(transcription, response):
     
     # Convert transcription to audio using gTTS
     tts = gTTS(text=transcription, lang='en')
-    with tempfile.NamedTemporaryFile(delete=True) as fp:
-        tts.save(fp.name)
-        transcription_audio = AudioSegment.from_file(fp.name, format="mp3")
+    with tempfile.NamedTemporaryFile(delete=False) as fp:
+        temp_filename = fp.name
+    tts.save(temp_filename)
+    transcription_audio = AudioSegment.from_file(temp_filename, format="mp3")
+    os.remove(temp_filename)
     transcription_features = audio_fingerprint.extract_features(transcription_audio)
     
     # Compare fingerprints
