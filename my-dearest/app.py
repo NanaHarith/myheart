@@ -2,6 +2,7 @@ import os
 import io
 import threading
 from flask import Flask, render_template, send_from_directory, request, send_file, jsonify
+from hello import hello
 from flask_socketio import SocketIO, emit
 from openai import OpenAI
 from dotenv import load_dotenv
