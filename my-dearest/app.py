@@ -90,6 +90,25 @@ def handle_transcription(transcription):
     print(f"Received transcription: {transcription}")
     process_command(transcription)
     socketio.sleep(0.1)  # Add a slight delay to prevent overwhelming the server
+
+def process_command(command):
+    conversation_history.append({"role": "user", "content": command})
+    response = get_ai_response(conversation_history)
+    try:
+        emit('ai_response', {'text': response, 'is_final': True})
+        global is_playing_audio
+        audio_url = streaming_tts.generate_audio(response)
+        is_playing_audio = True  # Set flag to true when starting audio playback
+        emit('audio_response', {'url': audio_url}, broadcast=True)
+    except (ConnectionAbortedError, BrokenPipeError) as e:
+        print(f"Connection issue: {str(e)}")
+    except Exception as e:
+        print(f"Error during response emission: {str(e)}")
+    
+    # Start a cooldown period
+    # Listening will be re-enabled after audio playback is finished
+    socketio.sleep(1)  # Ensure a brief pause before re-enabling listening
+    reset_listening()  # Re-enable listening after processing
 def is_audio_matching(transcription, response):
     # Load the audio file
     audio = AudioSegment.from_file("static/audio/response.mp3")
