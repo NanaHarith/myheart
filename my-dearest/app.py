@@ -12,6 +12,8 @@ import wave
 import audio_fingerprint  # Import the audio fingerprinting module
 import requests
 from pydub import AudioSegment
+from gtts import gTTS
+import tempfile
 from pydub.silence import split_on_silence
 
 load_dotenv()
@@ -130,9 +132,11 @@ def is_audio_matching(transcription, response):
     # Extract features from the response audio
     response_features = audio_fingerprint.extract_features(audio)
     
-    # Convert transcription to audio (this is a placeholder, replace with actual conversion)
-    # TODO: Replace with actual transcription to audio conversion
-    transcription_audio = AudioSegment.silent(duration=1000)  # Placeholder for actual audio
+    # Convert transcription to audio using gTTS
+    tts = gTTS(text=transcription, lang='en')
+    with tempfile.NamedTemporaryFile(delete=True) as fp:
+        tts.save(fp.name)
+        transcription_audio = AudioSegment.from_file(fp.name, format="mp3")
     transcription_features = audio_fingerprint.extract_features(transcription_audio)
     
     # Compare fingerprints
