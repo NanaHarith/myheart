@@ -75,7 +75,7 @@ class WebSocketManager {
 
         this.socket.on('audio_response', (data) => {
             if (data.url) {
-                const audio = new Audio(data.url);
+                const audio = new Audio(window.location.origin + data.url);
                 audio.oncanplaythrough = () => {
                     audio.play().catch(error => {
                         console.error("Error playing audio:", error);
