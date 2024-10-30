@@ -114,10 +114,8 @@ def process_command(command):
     except Exception as e:
         print(f"Error during response emission: {str(e)}")
     
-    # Start a cooldown period
-    # Listening will be re-enabled after audio playback is finished
-    socketio.sleep(1)  # Ensure a brief pause before re-enabling listening
-    reset_listening()  # Re-enable listening after processing
+    # Immediately re-enable listening after processing
+    reset_listening()
 def is_audio_matching(transcription, response):
     # Load the audio file
     audio = AudioSegment.from_file("static/audio/response.mp3")
