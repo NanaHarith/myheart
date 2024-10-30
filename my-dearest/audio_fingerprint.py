@@ -35,8 +35,8 @@ class AudioFingerprinter:
     def __init__(self):
         self.last_output_fingerprint = None
 
-    def process_output(self, audio_data):
-        self.last_output_fingerprint = extract_features(audio_data)
+    def process_output(self, audio_segment):
+        self.last_output_fingerprint = extract_features(audio_segment)
 
     def check_input(self, audio_data):
         input_fingerprint = extract_features(audio_data)

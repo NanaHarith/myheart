@@ -7,9 +7,10 @@ from flask_socketio import SocketIO, emit
 from openai import OpenAI
 from dotenv import load_dotenv
 import webrtcvad
-import streaming_tts  # Import the streaming TTS module
+import streaming_tts
 import wave
-import audio_fingerprint  # Import the audio fingerprinting module
+import audio_fingerprint
+import numpy as np
 import requests
 from pydub import AudioSegment
 from gtts import gTTS
@@ -23,7 +24,8 @@ socketio = SocketIO(app, cors_allowed_origins="*")
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 conversation_history = []
 listening_active = False  # Flag to indicate if the system is actively listening
-is_playing_audio = False  # Flag to indicate if audio is being played
+is_playing_audio = False
+audio_fingerprinter = audio_fingerprint.AudioFingerprinter()
 vad = webrtcvad.Vad(3)  # Aggressiveness mode (0-3)
 
 # Flag to toggle streaming TTS
@@ -107,35 +109,55 @@ def process_command(command):
     # Ensure listening is re-enabled after processing
     listening_active = True
     emit('listening_status', {'status': 'started'}, broadcast=True)
-def is_audio_matching(transcription, response):
-    print(f"Checking if transcription matches response: '{transcription}' vs '{response}'")
-    audio = AudioSegment.from_file("static/audio/response.mp3")
-    
-    # Split audio on silence to get chunks
-    chunks = split_on_silence(audio, min_silence_len=500, silence_thresh=-40)
-    
-    # Convert transcription and response to lowercase
-    transcription = transcription.lower()
-    response = response.lower()
-    
-    # Extract features from the response audio
-    response_features = audio_fingerprint.extract_features(audio)
-    
-    # Convert transcription to audio using gTTS
-    tts = gTTS(text=transcription, lang='en')
-    with tempfile.NamedTemporaryFile(delete=False) as fp:
-        temp_filename = fp.name
-    tts.save(temp_filename)
-    transcription_audio = AudioSegment.from_file(temp_filename, format="mp3")
-    os.remove(temp_filename)
-    transcription_features = audio_fingerprint.extract_features(transcription_audio)
-    
-    print(f"Transcription features: {transcription_features}")
-    print(f"Response features: {response_features}")
-    match = audio_fingerprint.compare_fingerprints(transcription_features, response_features)
-    
-    print(f"Fingerprint match result: {match}")
-    return match
+def handle_audio_data(data):
+    global is_playing_audio
+    if is_playing_audio:
+        emit('speech_detected', {'detected': False})
+        return
+
+    try:
+        with io.BytesIO() as wav_io:
+            with wave.open(wav_io, 'wb') as wav_file:
+                wav_file.setnchannels(1)
+                wav_file.setsampwidth(2)
+                wav_file.setframerate(16000)
+                wav_file.writeframes(data)
+            audio_data = wav_io.getvalue()
+
+        audio = wave.open(io.BytesIO(audio_data), 'rb')
+        if audio.getnchannels() != 1 or audio.getsampwidth() != 2:
+            print("Audio format not supported: must be mono and 16-bit")
+            emit('speech_detected', {'detected': False})
+            return
+
+        sample_rate = audio.getframerate()
+        audio_data = audio.readframes(audio.getnframes())
+
+        frame_duration = 30
+        frame_size = int(sample_rate * (frame_duration / 1000.0) * 2)
+        offset = 0
+        speech_detected = False
+        while offset + frame_size <= len(audio_data):
+            frame = audio_data[offset:offset + frame_size]
+            if vad.is_speech(frame, sample_rate):
+                speech_detected = True
+                break
+            offset += frame_size
+
+        if speech_detected:
+            audio_segment = AudioSegment(data, frame_rate=sample_rate, sample_width=2, channels=1)
+            if not audio_fingerprinter.check_input(audio_segment):
+                emit('speech_detected', {'detected': True})
+            else:
+                emit('speech_detected', {'detected': False})
+        else:
+            emit('speech_detected', {'detected': False})
+    except wave.Error as e:
+        print(f"Wave error in handle_audio_data: {str(e)}")
+        emit('speech_detected', {'detected': False})
+    except Exception as e:
+        print(f"Error in handle_audio_data: {str(e)}")
+        emit('speech_detected', {'detected': False})
 
 def reset_listening():
     global listening_active
