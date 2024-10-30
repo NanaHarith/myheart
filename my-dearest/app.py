@@ -115,7 +115,9 @@ def process_command(command):
         print(f"Error during response emission: {str(e)}")
     
     # Immediately re-enable listening after processing
-    reset_listening()
+    # Ensure listening is re-enabled after processing
+    listening_active = True
+    emit('listening_status', {'status': 'started'}, broadcast=True)
 def is_audio_matching(transcription, response):
     # Load the audio file
     audio = AudioSegment.from_file("static/audio/response.mp3")
