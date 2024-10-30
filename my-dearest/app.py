@@ -8,6 +8,7 @@ from dotenv import load_dotenv
 import webrtcvad
 import streaming_tts  # Import the streaming TTS module
 import wave
+import audio_fingerprint  # Import the audio fingerprinting module
 import requests
 from pydub import AudioSegment
 from pydub.silence import split_on_silence
@@ -125,9 +126,17 @@ def is_audio_matching(transcription, response):
     transcription = transcription.lower()
     response = response.lower()
     
-    # Placeholder logic for matching transcription with audio chunks
-    # This needs to be replaced with actual speech-to-text processing
-    # For now, we will just return False as we cannot process audio to text here
+    # Extract features from the response audio
+    response_features = audio_fingerprint.extract_features(audio)
+    
+    # Extract features from the transcription (assuming it's converted to audio)
+    transcription_audio = AudioSegment.from_file("path/to/transcription/audio.mp3")
+    transcription_features = audio_fingerprint.extract_features(transcription_audio)
+    
+    # Compare fingerprints
+    match = audio_fingerprint.compare_fingerprints(transcription_features, response_features)
+    
+    return match
     return False
 
 def reset_listening():
