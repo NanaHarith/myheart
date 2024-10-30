@@ -23,7 +23,11 @@ def extract_features(audio_segment):
 def compare_fingerprints(fp1, fp2):
     if fp1 is None or fp2 is None:
         return 0
-    return np.dot(fp1, fp2) / (np.linalg.norm(fp1) * np.linalg.norm(fp2))
+    dot_product = np.dot(fp1, fp2)
+    norm_product = np.linalg.norm(fp1) * np.linalg.norm(fp2)
+    similarity = dot_product / norm_product if norm_product != 0 else 0
+    print(f"Dot product: {dot_product}, Norm product: {norm_product}, Similarity: {similarity}")
+    return similarity
 
 class AudioFingerprinter:
     def __init__(self):
