@@ -119,7 +119,7 @@ def process_command(command):
     listening_active = True
     emit('listening_status', {'status': 'started'}, broadcast=True)
 def is_audio_matching(transcription, response):
-    # Load the audio file
+    print(f"Checking if transcription matches response: '{transcription}' vs '{response}'")
     audio = AudioSegment.from_file("static/audio/response.mp3")
     
     # Split audio on silence to get chunks
@@ -141,9 +141,11 @@ def is_audio_matching(transcription, response):
     os.remove(temp_filename)
     transcription_features = audio_fingerprint.extract_features(transcription_audio)
     
-    # Compare fingerprints
+    print(f"Transcription features: {transcription_features}")
+    print(f"Response features: {response_features}")
     match = audio_fingerprint.compare_fingerprints(transcription_features, response_features)
     
+    print(f"Fingerprint match result: {match}")
     return match
 
 def reset_listening():
