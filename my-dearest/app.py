@@ -120,11 +120,9 @@ def is_audio_matching(transcription, response):
     transcription = transcription.lower()
     response = response.lower()
     
-    # Check if transcription matches any chunk of the response
-    for chunk in chunks:
-        chunk_text = chunk.text.lower()  # Assuming chunk has a text attribute
-        if transcription in chunk_text:
-            return True
+    # Placeholder logic for matching transcription with audio chunks
+    # This needs to be replaced with actual speech-to-text processing
+    # For now, we will just return False as we cannot process audio to text here
     return False
 
 def reset_listening():
