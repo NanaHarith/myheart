@@ -9,6 +9,8 @@ import webrtcvad
 import streaming_tts  # Import the streaming TTS module
 import wave
 import requests
+from pydub import AudioSegment
+from pydub.silence import split_on_silence
 
 load_dotenv()
 
@@ -79,15 +81,32 @@ def handle_transcription(transcription):
     if conversation_history and conversation_history[-1]["role"] == "assistant":
         last_response = conversation_history[-1]["content"].strip().lower()
         current_transcription = transcription.strip().lower()
-        if current_transcription == last_response:
+        
+        # Use pydub to analyze audio and check for matches
+        if is_audio_matching(current_transcription, last_response):
             print("Ignoring transcription that matches the last AI response")
             return
 
     print(f"Received transcription: {transcription}")
     process_command(transcription)
     socketio.sleep(0.1)  # Add a slight delay to prevent overwhelming the server
-
-def process_command(command):
+def is_audio_matching(transcription, response):
+    # Load the audio file
+    audio = AudioSegment.from_file("static/audio/response.mp3")
+    
+    # Split audio on silence to get chunks
+    chunks = split_on_silence(audio, min_silence_len=500, silence_thresh=-40)
+    
+    # Convert transcription and response to lowercase
+    transcription = transcription.lower()
+    response = response.lower()
+    
+    # Check if transcription matches any chunk of the response
+    for chunk in chunks:
+        chunk_text = chunk.text.lower()  # Assuming chunk has a text attribute
+        if transcription in chunk_text:
+            return True
+    return False
     conversation_history.append({"role": "user", "content": command})
     response = get_ai_response(conversation_history)
     try:
