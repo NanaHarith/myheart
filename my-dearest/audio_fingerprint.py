@@ -10,7 +10,7 @@ def extract_features(audio_segment):
     # Simple feature extraction: average amplitude in a few frequency bands
     fft = np.fft.fft(samples)
     freq = np.fft.fftfreq(len(samples))
-    bands = [0, 500, 1000, 2000, 4000]  # Hz
+    bands = [0, 250, 500, 1000, 2000, 4000, 8000]  # Hz
     features = []
     for i in range(len(bands) - 1):
         band = fft[(freq >= bands[i]) & (freq < bands[i+1])]
@@ -22,6 +22,8 @@ def extract_features(audio_segment):
 
 def compare_fingerprints(fp1, fp2):
     if fp1 is None or fp2 is None:
+        return 0
+    if len(fp1) != len(fp2):
         return 0
     dot_product = np.dot(fp1, fp2)
     norm_product = np.linalg.norm(fp1) * np.linalg.norm(fp2)
