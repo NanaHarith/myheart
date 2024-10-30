@@ -4,10 +4,12 @@ import numpy as np
 
 FINGERPRINT_THRESHOLD = 0.8
 
-def extract_features(audio_data):
+def extract_features(audio_segment):
+    # Convert AudioSegment to raw audio data
+    samples = np.array(audio_segment.get_array_of_samples())
     # Simple feature extraction: average amplitude in a few frequency bands
-    fft = np.fft.fft(audio_data)
-    freq = np.fft.fftfreq(len(audio_data))
+    fft = np.fft.fft(samples)
+    freq = np.fft.fftfreq(len(samples))
     bands = [0, 500, 1000, 2000, 4000]  # Hz
     features = []
     for i in range(len(bands) - 1):
