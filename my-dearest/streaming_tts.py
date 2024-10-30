@@ -28,6 +28,7 @@ def generate_audio(text, chunk_size=4096):
 
         if response.ok:
             audio_file_path = 'static/audio/response.mp3'
+            os.makedirs(os.path.dirname(audio_file_path), exist_ok=True)
             with open(audio_file_path, 'wb') as audio_file:
                 for chunk in response.iter_content(chunk_size=chunk_size):
                     audio_file.write(chunk)
