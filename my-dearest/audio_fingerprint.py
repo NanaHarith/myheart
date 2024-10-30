@@ -41,4 +41,4 @@ class AudioFingerprinter:
     def check_input(self, audio_data):
         input_fingerprint = extract_features(audio_data)
         similarity = compare_fingerprints(input_fingerprint, self.last_output_fingerprint)
-        return similarity >= FINGERPRINT_THRESHOLD
+        return similarity < FINGERPRINT_THRESHOLD
