@@ -32,7 +32,7 @@ def generate_audio(text, chunk_size=4096):
             with open(audio_file_path, 'wb') as audio_file:
                 for chunk in response.iter_content(chunk_size=chunk_size):
                     audio_file.write(chunk)
-            return os.path.join('static', 'audio', 'response.mp3')
+            return audio_file_path
         else:
             print(f"Failed to generate audio: {response.status_code}")
             print(f"Response content: {response.content}")
