@@ -84,7 +84,7 @@ def handle_transcription(transcription):
     # Check if the transcription contains the unique identifier
     if unique_identifier in transcription:
         print("Ignoring transcription that contains system audio")
-            return
+        return
 
     print(f"Received transcription: {transcription}")
     process_command(transcription)
