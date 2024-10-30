@@ -79,8 +79,8 @@ def handle_transcription(transcription):
     if conversation_history and conversation_history[-1]["role"] == "assistant":
         last_response = conversation_history[-1]["content"].strip().lower()
         current_transcription = transcription.strip().lower()
-        if current_transcription in last_response:
-            print("Ignoring transcription that matches part of the last AI response")
+        if current_transcription == last_response:
+            print("Ignoring transcription that matches the last AI response")
             return
 
     print(f"Received transcription: {transcription}")
