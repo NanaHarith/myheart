@@ -70,6 +70,7 @@ last_transcription = None
 @socketio.on('transcription')
 def handle_transcription(transcription):
     global listening_active, last_transcription
+    unique_identifier = "system_audio_marker"
 
     # Debounce duplicate transcriptions
     if transcription == last_transcription:
