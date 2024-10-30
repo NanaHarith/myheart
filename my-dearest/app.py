@@ -95,6 +95,8 @@ def process_command(command):
             emit('ai_response', {'text': response, 'is_final': True})
             global is_playing_audio
             audio_url = streaming_tts.generate_audio(response)
+            if not os.path.exists(audio_url):
+                raise FileNotFoundError(f"Audio file not found: {audio_url}")
             is_playing_audio = True  # Set flag to true when starting audio playback
             # Process the output audio to generate its fingerprint
             audio_segment = AudioSegment.from_file(audio_url, format="mp3")
