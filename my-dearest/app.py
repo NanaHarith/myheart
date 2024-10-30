@@ -81,14 +81,9 @@ def handle_transcription(transcription):
         print("Not listening")
         return
 
-    # Check if the transcription matches the last AI response
-    if conversation_history and conversation_history[-1]["role"] == "assistant":
-        last_response = conversation_history[-1]["content"].strip().lower()
-        current_transcription = transcription.strip().lower()
-        
-        # Use pydub to analyze audio and check for matches
-        if is_audio_matching(current_transcription, last_response):
-            print("Ignoring transcription that matches the last AI response")
+    # Check if the transcription contains the unique identifier
+    if unique_identifier in transcription:
+        print("Ignoring transcription that contains system audio")
             return
 
     print(f"Received transcription: {transcription}")
@@ -97,7 +92,9 @@ def handle_transcription(transcription):
 
 def process_command(command):
     conversation_history.append({"role": "user", "content": command})
-    response = get_ai_response(conversation_history)
+    # Add a unique identifier to the response to help filter out system audio
+    unique_identifier = "system_audio_marker"
+    response = get_ai_response(conversation_history) + " " + unique_identifier
     try:
         try:
             emit('ai_response', {'text': response, 'is_final': True})
