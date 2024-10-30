@@ -66,6 +66,11 @@ class WebSocketManager {
         this.socket.on('ai_response', (data) => {
             const resultDiv = document.getElementById('result');
             resultDiv.textContent = data.text;
+
+            // Re-enable listening after receiving the final response
+            if (data.is_final) {
+                this.emit('start_listening');
+            }
         });
 
         this.socket.on('audio_response', (data) => {

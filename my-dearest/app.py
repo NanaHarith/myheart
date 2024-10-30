@@ -59,9 +59,17 @@ def stop_listening():
     emit('listening_status', {'status': 'stopped'})
     print("Listening stopped")
 
+last_transcription = None
+
 @socketio.on('transcription')
 def handle_transcription(transcription):
-    global listening_active
+    global listening_active, last_transcription
+
+    # Debounce duplicate transcriptions
+    if transcription == last_transcription:
+        print("Duplicate transcription ignored")
+        return
+    last_transcription = transcription
 
     if not listening_active:
         print("Not listening")
@@ -94,9 +102,9 @@ def process_command(command):
         print(f"Error during response emission: {str(e)}")
     
     # Start a cooldown period
-    listening_active = False
     # Listening will be re-enabled after audio playback is finished
     socketio.sleep(1)  # Ensure a brief pause before re-enabling listening
+    reset_listening()  # Re-enable listening after processing
 
 def reset_listening():
     global listening_active
