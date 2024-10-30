@@ -96,6 +96,9 @@ def process_command(command):
             global is_playing_audio
             audio_url = streaming_tts.generate_audio(response)
             is_playing_audio = True  # Set flag to true when starting audio playback
+            # Process the output audio to generate its fingerprint
+            audio_segment = AudioSegment.from_file(audio_url, format="mp3")
+            audio_fingerprinter.process_output(audio_segment)
             emit('audio_response', {'url': audio_url}, broadcast=True)
         except (ConnectionAbortedError, ConnectionResetError) as e:
             print(f"Connection issue: {str(e)}")
@@ -146,6 +149,7 @@ def handle_audio_data(data):
 
         if speech_detected:
             audio_segment = AudioSegment(data, frame_rate=sample_rate, sample_width=2, channels=1)
+            # Check if the input audio matches the last output audio
             if not audio_fingerprinter.check_input(audio_segment):
                 emit('speech_detected', {'detected': True})
             else:
