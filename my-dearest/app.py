@@ -131,14 +131,14 @@ def is_audio_matching(transcription, response):
     response_features = audio_fingerprint.extract_features(audio)
     
     # Convert transcription to audio (this is a placeholder, replace with actual conversion)
-    transcription_audio = AudioSegment.silent(duration=1000)  # 1 second of silence as a placeholder
+    # TODO: Replace with actual transcription to audio conversion
+    transcription_audio = AudioSegment.silent(duration=1000)  # Placeholder for actual audio
     transcription_features = audio_fingerprint.extract_features(transcription_audio)
     
     # Compare fingerprints
     match = audio_fingerprint.compare_fingerprints(transcription_features, response_features)
     
     return match
-    return False
 
 def reset_listening():
     global listening_active
