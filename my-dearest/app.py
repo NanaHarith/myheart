@@ -56,8 +56,9 @@ def handle_disconnect():
 @socketio.on('start_listening')
 def start_listening():
     global listening_active
-    listening_active = True
-    emit('listening_status', {'status': 'started'}, broadcast=True)
+    if not listening_active:
+        listening_active = True
+        emit('listening_status', {'status': 'started'}, broadcast=True)
     print("Listening started")
 
 @socketio.on('stop_listening')
