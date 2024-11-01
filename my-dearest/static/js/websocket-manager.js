@@ -73,24 +73,18 @@ class WebSocketManager {
             }
         });
 
-        this.socket.on('audio_response', (data) => {
-            if (data.url) {
-                const audio = new Audio(window.location.origin + data.url);
-                audio.oncanplaythrough = () => {
-                    audio.play().catch(error => {
-                        console.error("Error playing audio:", error);
-                    });
-                };
-                audio.onerror = (error) => {
-                    console.error("Audio playback error:", error);
-                };
-            }
-        });
-
-        this.socket.on('audio_chunk', (data) => {
-            if (data.chunk) {
-                // Handle audio chunk playback
-            }
+        this.socket.on('audio_data', (data) => {
+            const audioBlob = new Blob([data], { type: 'audio/mpeg' });
+            const audioUrl = URL.createObjectURL(audioBlob);
+            const audio = new Audio(audioUrl);
+            audio.oncanplaythrough = () => {
+                audio.play().catch(error => {
+                    console.error("Error playing audio:", error);
+                });
+            };
+            audio.onerror = (error) => {
+                console.error("Audio playback error:", error);
+            };
         });
     }
 
