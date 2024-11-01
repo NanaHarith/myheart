@@ -114,8 +114,9 @@ def process_command(command):
         print(f"Error during response emission: {str(e)}")
     
     # Ensure listening is re-enabled after processing
-    listening_active = True
-    emit('listening_status', {'status': 'started'}, broadcast=True)
+    if not listening_active:
+        listening_active = True
+        emit('listening_status', {'status': 'started'}, broadcast=True)
 def handle_audio_data(data):
     global is_playing_audio
     if is_playing_audio:
