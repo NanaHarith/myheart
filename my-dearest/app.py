@@ -104,7 +104,7 @@ def process_command(command):
             # Process the output audio to generate its fingerprint
             audio_segment = AudioSegment.from_file(io.BytesIO(audio_data), format="mp3")
             audio_fingerprinter.process_output(audio_segment)
-            emit('audio_data', audio_data, broadcast=True, binary=True)
+            emit('audio_data', {'data': audio_data}, broadcast=True, binary=True)
         except (ConnectionAbortedError, ConnectionResetError) as e:
             print(f"Connection issue: {str(e)}")
         except Exception as e:
