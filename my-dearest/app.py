@@ -57,8 +57,9 @@ def handle_disconnect():
 def start_listening():
     global listening_active
     if not listening_active:
-        listening_active = True
-        emit('listening_status', {'status': 'started'}, broadcast=True)
+        if not listening_active:
+            listening_active = True
+            emit('listening_status', {'status': 'started'}, broadcast=True)
     print("Listening started")
 
 @socketio.on('stop_listening')
@@ -120,6 +121,7 @@ def process_command(command):
 def handle_audio_data(data):
     global is_playing_audio
     if is_playing_audio:
+        print("Audio is currently playing, ignoring input")
         emit('speech_detected', {'detected': False})
         return
 
