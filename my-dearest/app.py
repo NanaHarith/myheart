@@ -271,7 +271,8 @@ def handle_request_audio(data):
 def handle_audio_finished():
     global is_playing_audio
     is_playing_audio = False  # Reset the flag when audio playback is finished
-    reset_listening()
+    listening_active = True  # Ensure listening is re-enabled
+    emit('listening_status', {'status': 'started'}, broadcast=True)
 
 if __name__ == '__main__':
     socketio.run(app, allow_unsafe_werkzeug=True, debug=True)
