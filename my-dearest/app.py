@@ -90,6 +90,7 @@ def handle_transcription(transcription):
     socketio.sleep(0.1)  # Add a slight delay to prevent overwhelming the server
 
 def process_command(command):
+    global listening_active
     conversation_history.append({"role": "user", "content": command})
     response = get_ai_response(conversation_history)
     try:
