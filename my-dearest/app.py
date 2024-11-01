@@ -97,15 +97,15 @@ def process_command(command):
         try:
             emit('ai_response', {'text': response, 'is_final': True})
             global is_playing_audio
-            audio_url = streaming_tts.generate_audio(response)
-            if not os.path.exists(audio_url):
-                raise FileNotFoundError(f"Audio file not found: {audio_url}")
+            audio_data = streaming_tts.generate_audio(response)
+            if not audio_data:
+                raise ValueError("Failed to generate audio data")
             is_playing_audio = True  # Set flag to true when starting audio playback
             # Process the output audio to generate its fingerprint
-            audio_segment = AudioSegment.from_file(audio_url, format="mp3")
+            audio_segment = AudioSegment.from_file(io.BytesIO(audio_data), format="mp3")
             audio_fingerprinter.process_output(audio_segment)
             print(f"Emitting audio URL: {audio_url}")
-            emit('audio_response', {'url': f"/{audio_url}"}, broadcast=True)
+            emit('audio_data', audio_data, broadcast=True, binary=True)
         except (ConnectionAbortedError, ConnectionResetError) as e:
             print(f"Connection issue: {str(e)}")
         except Exception as e:

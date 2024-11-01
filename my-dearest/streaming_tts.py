@@ -27,16 +27,14 @@ def generate_audio(text, chunk_size=4096):
         )
 
         if response.ok:
-            audio_file_path = 'static/audio/response.mp3'
-            os.makedirs(os.path.dirname(audio_file_path), exist_ok=True)
-            with open(audio_file_path, 'wb') as audio_file:
-                for chunk in response.iter_content(chunk_size=chunk_size):
-                    audio_file.write(chunk)
-            if os.path.exists(audio_file_path):
-                print(f"Audio file generated at: {audio_file_path}")
-                return audio_file_path
+            audio_data = b""
+            for chunk in response.iter_content(chunk_size=chunk_size):
+                audio_data += chunk
+            if audio_data:
+                print("Audio data generated successfully.")
+                return audio_data
             else:
-                print("Audio file was not created.")
+                print("Failed to generate audio data.")
                 return None
         else:
             print(f"Failed to generate audio: {response.status_code}")
