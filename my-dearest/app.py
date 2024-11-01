@@ -158,7 +158,7 @@ def handle_audio_data(data):
         if speech_detected:
             audio_segment = AudioSegment(data, frame_rate=sample_rate, sample_width=2, channels=1)
             # Check if the input audio matches the last output audio
-            if not audio_fingerprinter.check_input(audio_segment):
+            if audio_fingerprinter.check_input(audio_segment):
                 emit('speech_detected', {'detected': True})
             else:
                 emit('speech_detected', {'detected': False})
