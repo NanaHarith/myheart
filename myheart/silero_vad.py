@@ -8,7 +8,7 @@ repo_path = os.path.join(os.path.dirname(__file__), 'silero-vad')
 sys.path.append(repo_path)
 
 # Import the necessary utilities from the locally cloned repo
-from silero_vad import get_speech_timestamps, read_audio, VADIterator, collect_chunks
+from silero_vad_utils import get_speech_timestamps, read_audio, VADIterator, collect_chunks
 
 class SileroVAD:
     def __init__(self, threshold=0.5):
