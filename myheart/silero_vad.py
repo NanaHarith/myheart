@@ -14,8 +14,9 @@ class SileroVAD:
     def __init__(self, threshold=0.5):
         # Load the Silero VAD model
         self.model, utils = torch.hub.load('snakers4/silero-vad', 'silero_vad', force_reload=True)
-        # Unpack the utility functions
-        self.get_speech_timestamps, _, self.read_audio, _ = utils
+        # Correctly import the utility functions
+        self.get_speech_timestamps = utils.get_speech_timestamps
+        self.read_audio = utils.read_audio
         self.threshold = threshold
 
     def is_speech(self, audio_data, sample_rate=16000):
