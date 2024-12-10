@@ -1,5 +1,5 @@
 # requirements.txt
-Flask==2.0.1
+Flask
 Werkzeug
 flask-cors==3.0.10
 python-dotenv==0.19.0
