@@ -92,8 +92,17 @@ def handle_transcript(data):
         logger.error(f"Error handling transcript: {str(e)}")
         print(f"Error handling transcript: {str(e)}")
 
+
+# Determine if the app is running in development or production
+is_development = os.getenv('FLASK_ENV') == 'development'
+
+# Set the debug flag based on the environment
+debug_mode = is_development
+
 if __name__ == '__main__':
     host = os.getenv('HOST', '0.0.0.0')  # Allow access from any machine
     port = int(os.getenv('PORT', 8400))  # Keep 8400 or change to 5000
     print(f"Flask app running on http://{host}:{port}/")
-    socketio.run(app, host=host, port=port, allow_unsafe_werkzeug=True, debug=True)
+
+    # Run the app with the appropriate debug flag
+    socketio.run(app, host=host, port=port, allow_unsafe_werkzeug=True, debug=debug_mode)
