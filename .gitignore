@@ -1,0 +1,30 @@
+# Environment files
+.env
+*.env
+
+# Credentials
+*.json
+g_tts_cred.json
+
+# Logs
+*.log
+
+# Python cache files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+venv/
+env/
+.venv/
+
+# IDE-specific files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Miscellaneous
+.DS_Store
+Thumbs.db
