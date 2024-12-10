@@ -93,7 +93,7 @@ def handle_transcript(data):
         print(f"Error handling transcript: {str(e)}")
 
 if __name__ == '__main__':
-    host = os.getenv('HOST', 'localhost')
-    port = int(os.getenv('PORT', 5000))
+    host = os.getenv('HOST', '0.0.0.0')  # Allow access from any machine
+    port = int(os.getenv('PORT', 8400))  # Keep 8400 or change to 5000
     print(f"Flask app running on http://{host}:{port}/")
     socketio.run(app, host=host, port=port, allow_unsafe_werkzeug=True, debug=True)
