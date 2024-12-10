@@ -1,21 +1,31 @@
-<!-- templates/index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MyHeart</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MyHeart</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
 </head>
 <body>
-    <div class="container">
-        <h1>MyHeart</h1>
-        <div id="status">Ready</div>
-        <button id="startBtn">Start Listening</button>
-        <div id="transcript"></div>
-        <div id="response"></div>
+  <div class="container">
+    <header>
+      <h1>MyHeart</h1>
+    </header>
+    <div id="status" class="status-box">
+      Ready
     </div>
-    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <button id="startBtn" class="btn">Start Listening</button>
+    <div class="chat-area">
+      <div id="transcript" class="chat-box">
+        <!-- Transcript will go here -->
+      </div>
+      <div id="response" class="chat-box">
+        <!-- Response will go here -->
+      </div>
+    </div>
+  </div>
+
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>
 </html>

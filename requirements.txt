@@ -10,3 +10,4 @@ webrtcvad
 openai
 websockets
 python-socketio
+flask_socketio
