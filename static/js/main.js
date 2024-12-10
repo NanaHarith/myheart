@@ -64,7 +64,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function connectSocket() {
-        socket = io();
+        socket = io({
+            reconnection: true,
+            reconnectionAttempts: 5,
+            reconnectionDelay: 1000,
+            reconnectionDelayMax: 5000
+        });
 
         socket.on('connect', () => {
             console.log('Socket.IO connected');
@@ -73,9 +78,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
         socket.on('disconnect', () => {
             console.log('Socket.IO disconnected');
-            updateStatus('Disconnected');
+            updateStatus('Disconnected - Attempting to reconnect...');
+        });
+        socket.on('reconnect_failed', () => {
+            updateStatus('Connection failed - Please refresh the page');
         });
 
+        socket.on('reconnect_attempt', (attemptNumber) => {
+            updateStatus(`Reconnecting... (Attempt ${attemptNumber})`);
+        });
         socket.on('response', (data) => {
             updateStatus('Generating response...');
             if (data.text) {
