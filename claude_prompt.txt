@@ -1,0 +1,33 @@
+Here's a comprehensive prompt for Claude to generate these files from scratch:
+
+"I want to create a voice chat application that uses OpenAI's Realtime API for conversation and Speechify for text-to-speech. The application should:
+
+1. Use WebRTC for real-time communication
+2. Handle audio input/output with proper interruption handling
+3. Maintain conversation history across reconnections
+4. Format chat messages in a readable UI
+5. Implement proper error handling and logging
+
+Technical Requirements:
+- Flask backend with endpoints for token management and speech generation
+- WebRTC implementation in JavaScript
+- Speechify API integration with emotion control
+- Token refresh mechanism with exponential backoff
+- Conversation history preservation
+- Proper audio stream management
+
+Please generate the following files with detailed comments:
+1. app.py - Flask backend implementation
+2. main.js - Frontend WebRTC and UI handling
+3. streaming_tts.py - Speechify integration
+
+The application should:
+- Use environment variables for API keys
+- Include comprehensive error handling
+- Implement proper logging
+- Handle disconnections gracefully
+- Format chat messages with proper spacing and newlines
+- Support audio interruptions
+- Maintain conversation context
+
+Please provide the complete code for each file, explaining key implementation details and design choices."

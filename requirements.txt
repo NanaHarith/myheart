@@ -1,0 +1,14 @@
+# requirements.txt
+Flask
+Werkzeug
+flask-cors
+python-dotenv
+websockets
+requests
+numpy
+sounddevice
+webrtcvad
+openai
+websockets
+python-socketio
+flask_socketio
